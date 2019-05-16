@@ -1,0 +1,64 @@
+#Используем sdb для переноса root-раздела
+parted /dev/sdb mktable msdos
+parted /dev/sdb mkpart primary 0% 100%
+mkfs.xfs /dev/sdb1
+mount /dev/sdb1 /mnt
+cp -ax / /mnt 
+mount --bind /proc /mnt/proc && mount --bind /dev /mnt/dev && mount --bind /sys /mnt/sys && mount --bind /run /mnt/run && chroot /mnt/
+#Инсталим новый загрузчик и прописываем UUID /
+lsblk -f 
+nano /etc/fstab 
+mount -a #подключаем /boot
+grub2-mkconfig -o /boot/grub2/grub.cfg
+grub2-install /dev/sda
+exit
+init 6 
+#Загружаемся с sdb1
+#Бекапим lvm-раздел 
+mkdir /backup
+mount /dev/VolGroup00/LogVol00 /mnt
+xfsdump -l0 -f /backup/root /mnt 
+#Создаем новый уменьшенный lvm
+lvremove /dev/VolGroup00/LogVol00
+lvcreate -L 8G -n LogVol00 VolGroup00
+mkfs.xfs /dev/VolGroup00/LogVol00
+mount /dev/VolGroup00/LogVol00 /mnt
+#Переносим root-раздел из файла
+xfsrestore -l0 -f /backup/root /mnt 
+mount --bind /proc /mnt/proc && mount --bind /dev /mnt/dev && mount --bind /sys$
+#Инсталим новый загрузчик и прописываем UUID /
+lsblk -f
+nano /etc/fstab
+mount -a #подключаем /boot
+grub2-mkconfig -o /boot/grub2/grub.cfg
+grub2-install /dev/sda
+exit
+init 6
+#Загружаемся с lvm раздела
+#Создаем lvm для /home  
+parted /dev/sdb rm 1
+pvcreate /dev/sdb 
+vgcreate vg_home /dev/sdb
+lvcreate -l 50%FREE -n lv_home vg_home
+mkfs.xfs /dev/vg_home/lv_home
+mount /dev/vg_home/lv_home /mnt
+cp -ax /home/* /mnt
+touch /mnt/file{1..10}
+#Создаем снапшот и проверяем его
+lvcreate -l 50%FREE -s -n home_snap /dev/vg_home/lv_home
+rm -f /mnt/file{1..5}
+umount -a
+lvconvert --merge /dev/vg_home/home_snap
+#Создаем lvm для /var
+pvcreate /dev/sdc /dev/sdd
+vgcreate vg_var /dev/sd{c,d}
+lvcreate -l 100%FREE -m1 -n lv_var vg_var
+mkfs.xfs /dev/vg_var/lv_var
+mount /dev/vg_var/lv_var /mnt
+cp -ax /var/* /mnt
+umount -a 
+#Прописываем точки монтирования в /etc/fstab
+lsblk -a
+nano /etc/fstab
+mount -a
+
