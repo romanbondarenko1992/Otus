@@ -1,0 +1,22 @@
+yum install -y wget nano rpmdevtools rpm-build createrepo \
+yum-utils redhat-lsb-core epel-release 
+mkdir ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+wget -P ~/rpmbuild/SOURCES https://www.apache.org/dist/httpd/httpd-2.4.39.tar.bz2
+wget -P ~/rpmbuild/SOURCES https://www-us.apache.org/dist/apr/apr-1.7.0.tar.bz2
+wget -P ~/rpmbuild/SOURCES https://www-us.apache.org/dist//apr/apr-util-1.6.1.tar.bz2
+yum install -y autoconf libtool doxygen apr-devel expat-devel libuuid-devel libdb-devel libdb4-devel libxml2-devel  \
+postgresql-devel mysql-devel sqlite-devel unixODBC-devel openldap-devel openssl-devel nss-devel lua-devel nginx
+cd /root/rpmbuild/SOURCES
+rpmbuild -tb apr-1.7.0.tar.bz2
+rpmbuild -tb apr-util-1.6.1.tar.bz2
+cd /root/rpmbuild/RPMS/x86_64/ && rpm -Uhv apr*
+cd /root/rpmbuild/SOURCES && tar -xjf httpd-2.4.39.tar.bz2
+sed -i '407i%{_libdir}/httpd/modules/mod_socache_redis.so' httpd-2.4.39/httpd.spec
+tar -cvjf httpd-2.4.39.tar.bz2 httpd-2.4.39/
+rpmbuild -tb httpd-2.4.39.tar.bz2
+mkdir /usr/share/nginx/html/repo
+cp /root/rpmbuild/RPMS/x86_64/httpd* /usr/share/nginx/html/repo/
+restorecon -vvRF /usr/share/nginx/html/*
+createrepo /usr/share/nginx/html/repo/
+sed -i '48iautoindex on;' /etc/nginx/nginx.conf
+systemctl start nginx
