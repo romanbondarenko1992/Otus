@@ -1,0 +1,24 @@
+yum install epel-release -y && yum install nano wget httpd spawn-fcgi php php-cli mod_fcgid httpd -y
+cp /vagrant/watchlog /etc/sysconfig/watchlog 
+cp /vagrant/watchlog.log /var/log/watchlog.log 
+cp /vagrant/watchlog.sh /opt/watchlog.sh
+chmod +x /opt/watchlog.sh
+cp /vagrant/watchlog.service /etc/systemd/system/watchlog.service
+cp /vagrant/watchlog.timer /etc/systemd/system/watchlog.timer 
+systemctl start watchlog.timer
+cp /vagrant/spawn-fcgi /etc/sysconfig/spawn-fcgi
+cp /vagrant/spawn-fcgi.service /etc/systemd/system/spawn-fcgi.service
+systemctl start spawn-fcgi
+sed -i "9s!/sysconfig/httpd!/sysconfig/httpd-%I!g" /usr/lib/systemd/system/httpd.service
+cp /usr/lib/systemd/system/httpd.service /etc/systemd/system/httpd@first.service
+cp /usr/lib/systemd/system/httpd.service /etc/systemd/system/httpd@second.service
+cp /etc/sysconfig/httpd /etc/sysconfig/httpd-first
+cp /etc/sysconfig/httpd /etc/sysconfig/httpd-second
+sed -i "18iOPTIONS=-f conf/first.conf" /etc/sysconfig/httpd-first
+sed -i "18iOPTIONS=-f conf/second.conf" /etc/sysconfig/httpd-second
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/first.conf
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/second.conf
+sed -i "32iPidFile /var/run/httpd-second.pid" /etc/httpd/conf/second.conf
+sed -i "s/Listen 80/Listen 81/g" /etc/httpd/conf/second.conf
+systemctl start httpd@first
+systemctl start httpd@second
