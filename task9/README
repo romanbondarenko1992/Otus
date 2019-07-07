@@ -1,0 +1,2 @@
+Для старта: vagrant up && ansible-playbook nginx-otus.yml
+:)
