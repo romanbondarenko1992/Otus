@@ -1,0 +1,6 @@
+Запретить всем пользователям, кроме группы admin логин в выходные и праздничные дни
+yum install nano epel-release pam_script -y #Устанавливаем модуль PAM
+useradd admin #Создаем юзера admin 
+echo -e "megapass\nmegapass\n" | passwd admin #назначаем ему пароль
+echo -e "*;*;!admin;!Wd0000-2400" >> /etc/security/time.conf #Прописываем юзеров из группы admin
+sed -i '8iaccount    required     pam_time.so' /etc/pam.d/sshd #Добавляем параметры в модуль sshd
