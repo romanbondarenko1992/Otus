@@ -1,0 +1,2 @@
+Установка FreeIpa для старта:
+vagrant up && ansible-playbook ipa.yml
