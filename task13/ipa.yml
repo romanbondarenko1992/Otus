@@ -1,0 +1,104 @@
+---
+
+- name: Install ipa-server
+  hosts: server
+  gather_facts: false
+  become: true
+  tags: server
+  tasks:
+   
+   - name: Set hostname
+     command: "hostnamectl set-hostname server.otus.loc"
+  
+   - name: IP hosts
+     lineinfile:
+       path: /etc/hosts
+       line: '192.168.11.250 server.otus.loc server'
+   
+   - name: Install packages ipa-server
+     yum: 
+       name: "{{ packages }}"
+       state: latest
+     vars:
+       packages:
+       - ipa-server
+       - ipa-server-dns
+    
+   - name: Install ipa-server
+     command: "ipa-server-install --hostname=server.otus.loc --domain=otus.loc --realm=OTUS.LOC --ds-password=12345678 --admin-password=123qwerty --mkhomedir --setup-dns --no-forwarders --auto-reverse --unattended"   
+   
+   - name: configure firewalld
+     firewalld:
+       service: "{{ item }}"
+       state: enabled
+       permanent: yes
+     with_items:
+       - freeipa-ldap
+       - http
+       - https
+       - dns
+       - ntp
+       - kerberos
+
+   - name: Restart firewalld
+     systemd:
+       name: firewalld
+       state: restarted
+
+- name: Install ipa-client
+  hosts: client
+  become: true
+  gather_facts: false
+  tags: client
+  tasks:
+  
+  - name: Set hostname
+    command: "hostnamectl set-hostname client.otus.loc"
+
+  - name: IP hosts
+    lineinfile:
+      path: /etc/hosts
+      line: '192.168.11.251 client.otus.loc client'
+
+  - name: Add DNS
+    lineinfile:
+      dest: /etc/resolv.conf
+      regexp: '^nameserver'
+      line: 'nameserver 192.168.11.250'
+  
+  - name: Install package ipa-client
+    yum: 
+      name: ipa-client
+      state: latest
+
+  - name: configure firewalld
+    firewalld:
+       service: "{{ item }}"
+       state: enabled
+       permanent: yes
+    with_items:
+       - freeipa-ldap
+       - http
+       - https
+       - dns
+       - ntp
+       - kerberos
+
+  - name: Restart firewalld
+    systemd:
+      name: firewalld
+      state: restarted
+  
+  - name: Stop chronyd
+    systemd:
+      name: chronyd
+      state: stopped 
+      enabled: no
+
+  - name: Install ipa-client
+    command: "ipa-client-install --hostname=client.otus.loc --mkhomedir --server=server.otus.loc --domain=otus.loc --realm=OTUS.LOC --principal=admin --password=123qwerty --force-ntpd --unattended --force-join"
+
+
+
+
+  
