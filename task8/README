@@ -1,0 +1,19 @@
+Попасть в систему без пароля несколькими способами:
+Способ 1. init=/bin/sh
+● В конце строки начинающейся с linux16 добавлāем init=/bin/sh и нажимаем сtrl-x для
+загрузки в систему
+Способ 2. rw init=/sysroot/bin/sh
+● В строке начинающейся с linux16 заменāем ro на rw init=/sysroot/bin/sh и нажимаем сtrl-x
+для загрузки в систему
+
+Установить систему с LVM, после чего переименовать VG
+Система взята с образа vagranta centos7 18.04.02 c LVM
+vgrename VolGroup00 VG0 - переименовываем VG
+sed -i 's/VolGroup00/VG0/g' /etc/fstab - прописываем новое имя
+sed -i 's/VolGroup00/VG0/g' /boot/grub2/grub.cfg
+
+Добавить модуль в initrd - НЕ РАБОТАЕТ!
+mkdir /usr/lib/dracut/modules.d/01test - создаем папку для модуля
+cp /vagrant/*.sh /usr/lib/dracut/modules.d/01test/ - копируем скрипты установки модуля и сам скрпт 
+sed -i 's/rhgb quiet//g' /boot/grub2/grub.cfg - убираем тихую загрузку
+dracut -f -v - собираем новый initramfs
