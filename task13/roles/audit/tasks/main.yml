@@ -1,0 +1,12 @@
+---
+# tasks file for audit
+
+- name: Add audit rules
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    line: "{{ item }}"
+  with_items:
+    - -w /etc/nginx/nginx.conf -p wa -k nginx
+    - -w /etc/nginx/conf.d/default.conf -p wa -k nginx
+- name: Reload audit.rules
+  command: "augenrules --load"

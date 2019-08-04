@@ -1,0 +1,7 @@
+---
+# handlers file for nginx
+- name: Start nginx
+  systemd:
+    state: started
+    name: nginx
+  become: yes

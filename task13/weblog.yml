@@ -1,0 +1,13 @@
+- name: NGINX
+  hosts: web
+  become: True
+  roles:
+    - nginx
+    - audit
+    - rsyslog_cl
+
+- name: RSYSLOG
+  hosts: log1
+  become: True
+  roles:
+    - rsyslog_srv

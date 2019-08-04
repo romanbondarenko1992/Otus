@@ -1,0 +1,23 @@
+---
+# tasks file for rsyslog_srv
+
+- name: Install rsyslog config
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: 'audit.conf',dest: '/etc/rsyslog.d' }
+    - { src: 'nginx.conf',dest: '/etc/rsyslog.d' }
+    - { src: 'rsyslog.conf',dest: '/etc' }
+
+- name: open port
+  firewalld:
+    service: syslog
+    permanent: yes
+    state: enabled
+
+- name: Reload services
+  systemd:
+    name: rsyslog
+    state: restarted
+
