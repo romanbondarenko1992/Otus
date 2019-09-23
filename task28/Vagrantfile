@@ -1,0 +1,82 @@
+MACHINES = {
+  :"server" => {
+    :box_name => "centos/7",
+    :ip_addr => "192.168.11.250",
+    :memory => "512",
+  },
+  :"client" => {
+    :box_name => "centos/7",
+    :ip_addr => "192.168.11.251",
+    :memory => "512",
+  }
+}
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+
+      config.vm.define boxname do |box|
+
+          box.vm.box = boxconfig[:box_name]
+          box.vm.host_name = boxname.to_s
+          box.vm.network "private_network", ip: boxconfig[:ip_addr]
+          box.vm.provider "virtualbox" do |vb|
+           vb.name = boxname.to_s 
+	   vb.memory = boxconfig[:memory]  
+      end
+          
+          box.vm.provision "shell", inline: <<-SHELL
+            mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
+            sed -i '65s/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+            systemctl restart sshd
+	    yum install nano rpcbind nfs-utils -y
+          SHELL
+      case boxname.to_s
+      when "server"
+           box.vm.provider :virtualbox do |vb|
+           end
+           box.vm.provision "shell", run: "always", inline: <<-SHELL
+             systemctl enable rpcbind
+             systemctl enable nfs-server
+             systemctl enable nfs-lock
+             systemctl enable nfs-idmap
+             systemctl start firewalld
+             mkdir -p /var/share/upload
+             chmod 777 /var/share/upload
+             echo "/var/share *(rw,no_root_squash)" > /etc/exports
+             firewall-cmd --permanent --zone=public --add-service=nfs
+             firewall-cmd --permanent --zone=public --add-service=mountd
+             firewall-cmd --permanent --zone=public --add-service=rpc-bind
+             firewall-cmd --permanent --add-port=111/udp
+             firewall-cmd --permanent --add-port=54302/udp
+             firewall-cmd --permanent --add-port=20048/udp
+             firewall-cmd --permanent --add-port=2049/udp
+             firewall-cmd --permanent --add-port=46666/udp
+             firewall-cmd --permanent --add-port=42955/udp
+             firewall-cmd --permanent --add-port=875/udp
+             firewall-cmd --reload
+             systemctl start rpcbind
+             systemctl start nfs-server
+             systemctl start nfs-lock
+             systemctl start nfs-idmap
+           SHELL
+       when "client"
+           box.vm.provider :virtualbox do |vb|
+           end
+           box.vm.provision "shell", run: "always", inline: <<-SHELL  
+             systemctl enable rpcbind
+             systemctl enable nfs-server
+             systemctl enable nfs-lock
+             systemctl enable nfs-idmap
+             systemctl start firewalld
+             echo "192.168.11.250:/var/share /mnt  nfs vers=3,udp,noexec,nosuid 0 0" >> /etc/fstab
+             systemctl start rpcbind
+             systemctl start nfs
+             systemctl start nfs-lock
+             systemctl start nfs-idmap	
+             mount -a
+           SHELL
+     end
+   end
+ end
+end
