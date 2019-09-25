@@ -65,17 +65,4 @@ central = 244 hosts, office1 = 248 hosts ,office2 = 250 hosts,
 		62 hosts
 		192.168.2.255 = BROADCAST
 	
-        Сеть FREE - 192.168.3.0/24
-		254 hosts
-		192.168.3.255 = BROADCAST
-	
-    Сеть FREE2 - 192.168.4.0/22
-        1022 hosts
-        192.168.7.255 = BROADCAST
-	
-    ...
-    
-    Сеть FREE - 192.168.252.0/22
-	1022 hosts
-        192.168.255.255 = BROADCAST
 
