@@ -1,0 +1,8 @@
+---
+# vars file for async
+eth1_r_vlan255: 192.168.255.2
+eth2_r_vlan1: 192.168.1.2
+eth1_o1_vlan1: 192.168.1.3
+eth2_o1_vlan2: 192.168.2.3
+eth1_o2_vlan255: 192.168.255.3
+eth2_o2_vlan2: 192.168.2.2

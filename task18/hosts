@@ -1,0 +1,5 @@
+[all]
+router ansible_host=127.0.0.1 ansible_port=2222 ansible_user=vagrant ansible_private_key_file=.vagrant/machines/router/virtualbox/private_key
+office1 ansible_host=127.0.0.1 ansible_port=2200 ansible_user=vagrant ansible_private_key_file=.vagrant/machines/office1/virtualbox/private_key
+office2 ansible_host=127.0.0.1 ansible_port=2201 ansible_user=vagrant ansible_private_key_file=.vagrant/machines/office2/virtualbox/private_key
+

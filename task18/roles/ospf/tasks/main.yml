@@ -1,0 +1,50 @@
+---
+# tasks file for async
+
+- name: Configure ospf router
+  template: 
+    src: "{{ item.file }}"
+    dest: /etc/quagga/{{ item.dst }}
+  with_items:
+    - { file: 'r_ospfd.conf.j2', dst: 'ospfd.conf' }
+    - { file: 'r_zebra.conf.j2', dst: 'zebra.conf' }
+  when: inventory_hostname == "router"
+
+- name: Configure ospf office1
+  template:
+    src: "{{ item.file }}"
+    dest: /etc/quagga/{{ item.dst }}
+  with_items:
+    - { file: 'o1_ospfd.conf.j2', dst: 'ospfd.conf' }
+    - { file: 'o1_zebra.conf.j2', dst: 'zebra.conf' } 
+  when: inventory_hostname == "office1"
+
+- name: Configure ospf office2
+  template:
+    src: "{{ item.file }}"
+    dest: /etc/quagga/{{ item.dst }}
+  with_items:
+    - { file: 'o2_ospfd.conf.j2', dst: 'ospfd.conf' }
+    - { file: 'o2_zebra.conf.j2', dst: 'zebra.conf' }
+  when: inventory_hostname == "office2"
+
+- name: Change config ownership
+  file:
+    path: /etc/quagga/ospfd.conf
+    owner: quagga
+    group: quaggavt
+    mode: '0644' 
+  notify: restart ospfd
+
+- name: Change zebra config ownership
+  file:
+    path: /etc/quagga/zebra.conf
+    owner: quagga
+    group: quagga
+    mode: '0644'
+  notify : restart zebra
+
+- name: Restart network
+  systemd:
+    name: network
+    state: restarted

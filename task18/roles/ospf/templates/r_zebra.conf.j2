@@ -1,0 +1,9 @@
+hostname router
+
+log file /var/log/quagga/zebra.log
+
+interface vlan255
+ip address {{ eth1_r_vlan255 }}/24
+
+interface vlan1
+ip address {{ eth2_r_vlan1 }}/24

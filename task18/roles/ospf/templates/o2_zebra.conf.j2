@@ -1,0 +1,12 @@
+hostname office2
+
+log file /var/log/quagga/zebra.log
+
+interface eth3
+ip address 10.2.0.2/24
+
+interface vlan2
+ip address {{ eth2_o2_vlan2 }}/24
+
+interface vlan255
+ip address {{ eth1_o2_vlan255 }}/24

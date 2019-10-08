@@ -1,0 +1,25 @@
+---
+
+- name: Create cost Vlan2 office2
+  hosts: office2
+  become: true
+  tasks:
+  - name: Create cost line
+    blockinfile: 
+      path: /etc/quagga/ospfd.conf
+      block: |
+        interface vlan2    
+        ip ospf cost 1200
+  
+  - name: Restart network
+    systemd:
+      name: network 
+      state: restarted 
+  - name: Restart zebra
+    systemd:
+      name: zebra
+      state: restarted 
+  - name: Restart ospfd
+    systemd:
+      name: ospfd
+      state: restarted

@@ -1,0 +1,14 @@
+---
+# handlers file for async
+- name: restart zebra
+  systemd:
+    state: restarted
+    name: zebra
+  become: yes
+ 
+- name: restart ospfd
+  systemd:
+    state: restarted
+    name: ospfd
+  become: yes
+

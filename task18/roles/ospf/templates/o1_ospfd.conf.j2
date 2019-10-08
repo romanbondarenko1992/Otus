@@ -1,0 +1,14 @@
+
+hostname office1
+password zebra
+router ospf
+    ospf router-id {{ eth1_o1_vlan1 }}
+    network 192.168.1.0/24 area 0
+    network 192.168.2.0/24 area 0
+    network 10.1.0.0/24 area 1
+    neighbor {{ eth2_r_vlan1 }}
+    neighbor {{ eth2_o2_vlan2 }}
+    redistribute connected
+interface vlan2
+ip ospf cost 200
+log file /var/log/quagga/ospfd.log

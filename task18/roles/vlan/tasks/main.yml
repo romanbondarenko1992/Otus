@@ -1,0 +1,40 @@
+---
+# tasks file for async
+
+- name: Configure Vlan255 router
+  template: 
+    src: ifcfg_r_vlan255.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan255
+  when: inventory_hostname == "router"
+ 
+- name: Configure Vlan1 router
+  template:
+    src: ifcfg_r_vlan1.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "router"
+
+- name: Configure Vlan1 Office1
+  template:
+    src: ifcfg_o1_vlan1.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "office1"
+
+- name: Configure Vlan2 Office1
+  template:
+    src: ifcfg_o1_vlan2.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan2
+  when: inventory_hostname == "office1"
+
+- name: Configure Vlan2 Office2
+  template:
+    src: ifcfg_o2_vlan2.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan2
+  when: inventory_hostname == "office2"
+
+- name: Configure Vlan255 Office2
+  template:
+    src: ifcfg_o2_vlan255.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan255
+  when: inventory_hostname == "office2"
+
+
