@@ -1,0 +1,54 @@
+MACHINES = {
+
+  :server => {
+        :box_name => "centos/7",
+        :net => [
+                   {ip: '192.168.11.252', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "dir-net"},
+                   
+                ]
+  },
+
+}
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+      
+    config.vm.define boxname do |box|
+
+        box.vm.box = boxconfig[:box_name]
+        box.vm.host_name = boxname.to_s
+
+        config.vm.provider "virtualbox" do |v|
+          v.memory = 256
+        end
+
+        boxconfig[:net].each do |ipconf|
+          box.vm.network "private_network", ipconf
+          box.vm.network "public_network"
+        end          
+          box.vm.provision "shell", inline: <<-SHELL
+            mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
+            sed -i '65s/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+            systemctl restart sshd
+            yum install -y epel-release
+	    yum install nano openvpn easy-rsa -y
+            setenforce 0
+            echo net.ipv4.conf.all.forwarding=1  >> /etc/sysctl.conf
+            echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf
+          SHELL
+      case boxname.to_s
+      when "server"
+           box.vm.provider :virtualbox do |vb|
+           end
+           box.vm.provision "shell", run: "always", inline: <<-SHELL
+           cp -r /vagrant/server/* /etc/openvpn/
+           mkdir /etc/openvpn/ccd
+           echo "iroute 192.168.11.0 255.255.255.0" > /etc/openvpn/ccd/client
+           systemctl start openvpn@server-tun
+           ip a
+           SHELL
+   end
+  end
+ end
+end
