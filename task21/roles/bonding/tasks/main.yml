@@ -1,0 +1,43 @@
+---
+# tasks file for vlan
+
+- name: Configure eth1 inetRouter
+  copy:
+    src: ifcfg-eth1-ir
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+  when: inventory_hostname == "inetRouter"
+
+- name: Configure eth2 inetRouter
+  copy:
+    src: ifcfg-eth2-ir
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth2
+  when: inventory_hostname == "inetRouter"
+
+- name: Configure bond0 inetRouter
+  copy:
+    src: ifcfg-bond0-ir
+    dest: /etc/sysconfig/network-scripts/ifcfg-bond0
+  when: inventory_hostname == "inetRouter"
+
+- name: Configure bond0 centralRouter
+  copy:
+    src: ifcfg-bond0-cr
+    dest: /etc/sysconfig/network-scripts/ifcfg-bond0
+  when: inventory_hostname == "centralRouter"
+
+- name: Configure eth1 centralRouter
+  copy:
+    src: ifcfg-eth1-cr
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+  when: inventory_hostname == "centralRouter"
+
+- name: Configure eth7 centralRouter
+  copy:
+    src: ifcfg-eth7-cr
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth7
+  when: inventory_hostname == "centralRouter"
+
+- name: Restart network
+  systemd:
+    name: network 
+    state: restarted     

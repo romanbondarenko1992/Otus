@@ -1,0 +1,12 @@
+- name: Vlan
+  hosts: vlan 
+  become: True 
+  roles: 
+    - vlan
+
+- name: Bonding
+  hosts: bonding
+  become: True
+  roles:
+    - bonding
+

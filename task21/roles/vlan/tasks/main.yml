@@ -1,0 +1,43 @@
+---
+# tasks file for vlan
+
+- name: Configure Vlan1 testServer1
+  copy:
+    src: ifcfg-vlan1-s1
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "testServer1"
+
+- name: Configure Vlan1 testClient1
+  copy:
+    src: ifcfg-vlan1-c1
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "testClient1"
+
+- name: Configure Vlan1 testServer2
+  copy:
+    src: ifcfg-vlan1-s2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan2
+  when: inventory_hostname == "testServer2"
+
+- name: Configure Vlan1 testClient2
+  copy:
+    src: ifcfg-vlan1-c2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan2
+  when: inventory_hostname == "testClient2"
+
+- name: Configure Vlan1 officeRouter1
+  copy:
+    src: ifcfg-vlan1-or1
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "office1Router"
+
+- name: Configure Vlan2 officeRouter1
+  copy:
+    src: ifcfg-vlan2-or1
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan2
+  when: inventory_hostname == "office1Router"
+
+- name: Restart network
+  systemd:
+    name: network 
+    state: restarted     
