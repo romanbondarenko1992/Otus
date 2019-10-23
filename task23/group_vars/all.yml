@@ -1,0 +1,17 @@
+master_ip: 192.168.11.250
+master_hostname: master
+slave_ip: 192.168.11.251
+slave_hostname: slave
+barman_ip: 192.168.11.252
+allow_subnet: 192.168.11.0
+barman_hostname: barman
+max_wal_senders: 3
+repl_user: replication
+repl_password: 123
+barman_user: barman
+barman_password: 1234
+replication_slot: slot
+barman_slot: barman
+pg_data: /var/lib/pgsql/11/data/
+base: otus
+

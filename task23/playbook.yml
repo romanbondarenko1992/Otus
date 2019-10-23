@@ -1,0 +1,32 @@
+- name: Install PostgreSQL
+  hosts: master:slave
+  become: True
+  roles: 
+    - postgre
+
+- name: Config master
+  hosts: master
+  become: true
+  roles: 
+    - master
+
+- name: Config slave
+  hosts: slave 
+  become: True
+  roles:
+    - slave
+
+- name: Config Barman
+  hosts: barman
+  become: yes
+  roles: 
+    - barman
+
+- name: SSH
+  become: true
+  hosts: master:barman
+  roles:
+    - ssh
+  tags: 
+    - ssh
+

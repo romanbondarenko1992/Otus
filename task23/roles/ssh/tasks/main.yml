@@ -1,0 +1,19 @@
+---
+- name: Create password barman-user
+  user:
+    name: barman
+    password: "{{ '1234' | password_hash('sha512') }}"
+  when: inventory_hostname == "barman"
+
+- name: Create SSH key
+  become_user: postgres
+  command: ssh-keygen -q -t rsa -f ~/.ssh/id_rsa -C "" -N ""
+  args:
+    creates: ~/.ssh/id_rsa
+  when: inventory_hostname == "master"
+
+- name: Copy SSH key
+  become_user: postgres
+  command: sshpass -p {{ barman_password }} ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no {{ barman_user }}@{{barman_hostname}}  
+  when: inventory_hostname == "master"
+ 

@@ -1,0 +1,41 @@
+---
+ 
+
+- name: Config postgresql.conf 
+  template:
+    src: postgresql.conf
+    dest: /var/lib/pgsql/11/data/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: '0600'
+ 
+- name: Config pg_hba.conf
+  template:
+    src: pg_hba.conf
+    dest: /var/lib/pgsql/11/data/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0600'
+
+- name: Restart postgres
+  systemd:
+    name: postgresql-11
+    state: restarted
+    enabled: yes
+
+- name: Create user replication
+  become_user: postgres
+  command: psql postgres -c "CREATE USER {{ repl_user }} WITH REPLICATION PASSWORD '{{ repl_password }}'"
+
+- name: Create slot
+  become_user: postgres
+  command: psql postgres -c "SELECT * FROM pg_create_physical_replication_slot('{{ replication_slot }}');"
+
+- name: Create user barman
+  become_user: postgres
+  command: psql postgres -c "CREATE USER {{ barman_user }} WITH REPLICATION PASSWORD '{{ barman_password }}' ; alter role barman superuser ; "
+
+- name: Create DB 
+  become_user: postgres
+  command: psql postgres -c "CREATE DATABASE {{ base }} ; "
+
