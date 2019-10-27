@@ -1,0 +1,22 @@
+- name: Config master
+  hosts: master  
+  become: true
+  roles: 
+    - master
+
+
+- name: Config slave
+  hosts: slave
+  become: true
+  roles:
+    - slave
+  tags:
+    - slave
+
+- name: Config DB
+  hosts: all
+  become: true
+  roles:
+    - db 
+  tags:
+    - db

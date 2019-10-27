@@ -1,0 +1,17 @@
+master_ip: 192.168.11.250
+master_hostname: master
+slave_ip: 192.168.11.251
+slave_hostname: slave
+db_name: bet
+db_dmp_name: bet.dmp
+path_to_dumpfile: /vagrant
+mysql_user_name: vagrant
+mysql_user_password: U$3r444@
+mysql_user_home: /home/vagrant
+mysql_root_username: root
+mysql_root_password: R0ot$uper@
+mysql_root_home: /root
+mysql_replication_user: repl
+mysql_replication_user_password: Repl123@
+
+

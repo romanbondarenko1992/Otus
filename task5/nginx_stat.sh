@@ -84,8 +84,7 @@ do
     ((url_stats["$url"]++))
 
     last_line="$line"
-done < <(tail_from_line $start_from "$log_file")
-
+done < "$(tail_from_line "$start_from" "$log_file")"
 
 echo -e "\e[1mReport since $report_date\e[0m"
 echo ""

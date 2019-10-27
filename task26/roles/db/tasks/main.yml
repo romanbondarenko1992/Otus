@@ -1,0 +1,29 @@
+---
+- name: Create a new database with name 'bet'
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+ 
+- name: Restore database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: import
+    target: /vagrant/bet.dmp
+  when: inventory_hostname == "master"
+
+- name: Dump bet databases 
+  command: '/bin/bash /vagrant/dump.sh'
+  when: inventory_hostname == "master"
+  
+- name: restore db
+  command: '/bin/bash /vagrant/restore.sh'
+  when: inventory_hostname == "slave"
+
+- name: Manage database and their users 
+  command: 'mysql --batch --execute="{{ item }}"'
+  with_items:
+    - STOP SLAVE
+    - CHANGE MASTER TO MASTER_HOST='{{ master_ip }}', MASTER_USER='{{ mysql_replication_user }}', MASTER_PASSWORD='{{ mysql_replication_user_password }}', MASTER_AUTO_POSITION = 1
+    - START SLAVE
+  when: inventory_hostname == "slave"
+

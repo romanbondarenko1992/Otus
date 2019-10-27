@@ -1,0 +1,56 @@
+MACHINES = {
+  :"master" => {
+    :box_name => "centos/7",
+    :ip_addr => "192.168.11.250",
+    :memory => "512",
+  },
+  :"slave" => {
+    :box_name => "centos/7",
+    :ip_addr => "192.168.11.251",
+    :memory => "512",
+  },
+}
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+
+      config.vm.define boxname do |box|
+
+          box.vm.box = boxconfig[:box_name]
+          box.vm.host_name = boxname.to_s
+          box.vm.network "private_network", ip: boxconfig[:ip_addr]
+          box.vm.provider "virtualbox" do |vb|
+           vb.name = boxname.to_s 
+	   vb.memory = boxconfig[:memory]  
+      end
+          
+          box.vm.provision "shell", inline: <<-SHELL
+            mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
+            sed -i '65s/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+            systemctl restart sshd
+            setenforce 0
+	    yum install -y epel-release 
+            yum install http://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm -y
+            yum install mysql mysql-server MySQL-python nano sshpass ntp -y
+            timedatectl set-timezone Europe/Minsk
+            echo "192.168.11.250 master" >> /etc/hosts
+            echo "192.168.11.251 slave" >> /etc/hosts
+            systemctl restart ntpd
+          SHELL
+      case boxname.to_s
+      when "server"
+           box.vm.provider :virtualbox do |vb|
+           end
+           box.vm.provision "shell", run: "always", inline: <<-SHELL
+
+           SHELL
+       when "client"
+           box.vm.provider :virtualbox do |vb|
+           end
+           box.vm.provision "shell", run: "always", inline: <<-SHELL  
+           SHELL
+     end
+   end
+ end
+end

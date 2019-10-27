@@ -1,0 +1,77 @@
+---
+- name: Create config
+  template:
+    backup: yes
+    owner: root
+    group: root
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: master.cnf.j2, dest: "/etc/my.cnf" }
+
+- name: Enable&Restart mysql
+  systemd:
+    name: mysqld.service
+    state: restarted
+    enabled: yes
+
+- name: Get temporary root password from /var/log/mysqld.log
+  command: "awk '/A temporary password/ {print $NF}' /var/log/mysqld.log"
+  register: "temp_root_password"
+
+- name: Copy root .my.cnf file with temporary password credentials.
+  template:
+    src: "root.my.cnf.j2"
+    dest: "{{ mysql_root_home }}/.my.cnf"
+    owner: "{{ mysql_root_username }}"
+    group: "{{ mysql_root_username }}"
+    mode: 0600
+  vars:
+    password_var: "{{ temp_root_password.stdout }}"
+
+- name: Set root password
+  command: 'mysql --connect-expired-password --batch --execute="{{ item }}"'
+  with_items:
+    - ALTER USER '{{ mysql_root_username }}'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
+
+- name: Copy root .my.cnf file with password credentials.
+  template:
+    src: "root.my.cnf.j2"
+    dest: "{{ mysql_root_home }}/.my.cnf"
+    owner: "{{ mysql_root_username }}"
+    group: "{{ mysql_root_username }}"
+    mode: 0600
+  vars:
+    password_var: "{{ mysql_root_password }}"
+
+- name: Ensure user {{ mysql_user_name }} is present.
+  mysql_user:
+    name: "{{ mysql_user_name }}"
+    password: "{{ mysql_user_password }}"
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+- name: Copy .my.cnf file with password credentials.
+  template:
+    src: ".my.cnf.j2"
+    dest: "{{ mysql_user_home }}/.my.cnf"
+    owner: "{{ mysql_user_name }}"
+    group: "{{ mysql_user_name }}"
+    mode: 0600
+
+- name: Manage database and their users
+  command: 'mysql --batch --execute="{{ item }}"'
+  with_items:
+    - CREATE USER '{{ mysql_replication_user }}'@'%' IDENTIFIED WITH mysql_native_password BY '{{ mysql_replication_user_password }}'
+    - GRANT REPLICATION SLAVE ON *.* TO '{{ mysql_replication_user }}'@'%'
+    - FLUSH PRIVILEGES
+
+- name: Create SSH key
+  command: 'ssh-keygen -q -t rsa -f ~/.ssh/id_rsa -C "" -N ""'
+  args:
+    creates: ~/.ssh/id_rsa
+
+- name: Copy SSH key
+  command: 'sshpass -p vagrant ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@slave'  
+
+
