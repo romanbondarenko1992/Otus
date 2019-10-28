@@ -1,3 +1,4 @@
+SHELL=/bin/bash
 MAILTO=linux@otus.ru
 
 0   *   *   *   *    cd /vagrant && ./nginx_stats.sh
