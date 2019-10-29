@@ -1,4 +1,4 @@
 SHELL=/bin/bash
 MAILTO=linux@otus.ru
 
-0   *   *   *   *    cd /vagrant && ./nginx_stats.sh
+0   *   *   *   *    cd /vagrant && ./nginx_stat.sh access.log
