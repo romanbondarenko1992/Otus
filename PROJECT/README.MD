@@ -1,11 +1,11 @@
 # Веб-кластер Active/Active Pacemaker Corosync с балансировкой на IPaddr2, Galera Cluster и iSCSI GFS2. 
 
-![Схема проекта:] (//https://github.com/romanbondarenko1992/Otus/blob/master/PROJECT/%D1%81%D1%85%D0%B5%D0%BC%D0%B0.jpg)
+![Схема проекта:](//https://github.com/romanbondarenko1992/Otus/blob/master/PROJECT/%D1%81%D1%85%D0%B5%D0%BC%D0%B0.jpg)
 Cконфигурировал 4 виртуальные машины на 2 интерфейса:
 1) для создания VirtualIP и подключению
 2) для создания Vlan для соединения с iSCSI-storage.
 
-Балансировку и виртуальный адрес мы создаем ремурсами Pacemaker - ocf:heartbeat:IPaddr2 c параметром clusterip_hash="sourceip-sourceport"
+Балансировку и виртуальный адрес мы создаем ремурсами Pacemaker - IPaddr2 c параметром clusterip_hash="sourceip-sourceport"
 
 clusterip_hash -указывает нужный тип для распределения запросов:
 - sourceip — распределение только по IP-адресу источника, это обеспечивает попадание запросов на один и тот же сервер.
