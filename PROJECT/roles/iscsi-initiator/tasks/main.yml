@@ -1,0 +1,82 @@
+---
+# tasks file for iscsi-initiator
+
+
+- name: Install iscsid
+  yum: 
+    name: "{{ packages }}"
+    state: present
+  vars: 
+    packages: 
+    - gfs2-utils
+    - lvm2-cluster
+    - iscsi-initiator-utils
+
+- name: Create Initiator name {{ node1 }}
+  template:
+    src: init_name1.j2 
+    dest: /etc/iscsi/initiatorname.iscsi
+  when: inventory_hostname == "n1.brs"
+
+- name: Create Initiator name {{ node2 }}
+  template:
+    src: init_name2.j2
+    dest: /etc/iscsi/initiatorname.iscsi
+  when: inventory_hostname == "n2.brs"
+
+- name: Create Initiator name {{ node3 }}
+  template:
+    src: init_name1.j2
+    dest: /etc/iscsi/initiatorname.iscsi
+  when: inventory_hostname == "n3.brs"
+
+- name: Restart iscsi
+  systemd:
+    name: iscsi
+    state: restarted
+    enabled: yes  
+
+- name: Restart iscsid
+  systemd:
+    name: iscsid
+    state: restarted
+    enabled: yes    
+
+- name: Connect iSCSI target {{ node1 }}
+  command: "{{ item }}"
+  with_items: 
+    - "iscsiadm -m discovery -t st -p {{ vlan_iscsi }}"
+    - "iscsiadm -m node -l -T {{ name_target }}"
+  when: inventory_hostname == "n1.brs"
+
+- name: Create a new primary partition {{ block_device }}
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+  when: inventory_hostname == "n1.brs"
+
+- name: Create GFS2 
+  command: "mkfs.gfs2  -O -p lock_dlm -t {{ cl_name }}:data -j 4 {{ block_device }}1"
+  when: inventory_hostname == "n1.brs"
+
+- name: Connect iSCSI target {{ node2 }}
+  command: "{{ item }}"
+  with_items:
+    - "iscsiadm -m discovery -t st -p {{ vlan_iscsi }}"
+    - "iscsiadm -m node -l -T {{ name_target }}"
+  when: inventory_hostname == "n2.brs"
+
+- name: Connect iSCSI target {{ node3 }}
+  command: "{{ item }}"
+  with_items:
+    - "iscsiadm -m discovery -t st -p {{ vlan_iscsi }}"
+    - "iscsiadm -m node -l -T {{ name_target }}"
+  when: inventory_hostname == "n3.brs"
+
+- name: Create a {{ web_dir }}
+  file:
+    path: "{{ web_dir }}"
+    state: directory
+    mode: '0775'
+    

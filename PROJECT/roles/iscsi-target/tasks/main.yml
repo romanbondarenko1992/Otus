@@ -1,0 +1,29 @@
+---
+# tasks file for iscsi-target
+
+- name: Install iscsi-target
+  yum: 
+    name: targetcli
+    state: present
+
+- name: Open port iscsi
+  firewalld:
+    port: 3260/tcp
+    permanent: yes
+    state: enabled
+
+- name: Restart Firewalld
+  systemd:
+    name: firewalld
+    state: restarted
+
+- name: Create target
+  command: "{{ item }}"
+  with_items:
+    - "targetcli /backstores/block create disk01 {{ block_device }}" 
+    - "targetcli /iscsi create {{ name_target }}" 
+    - "targetcli /iscsi/{{ name_target }}/tpg1/luns create /backstores/block/disk01 lun=1"
+    - "targetcli /iscsi/{{ name_target }}/tpg1/acls create {{ name_init1 }}"
+    - "targetcli /iscsi/{{ name_target }}/tpg1/acls create {{ name_init2 }}"
+    - "targetcli /iscsi/{{ name_target }}/tpg1/acls create {{ name_init3 }}"
+

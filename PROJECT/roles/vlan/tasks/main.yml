@@ -1,0 +1,40 @@
+---
+# tasks file for vlan
+
+
+- name: Create Vlan for {{ node1 }}
+  template:
+    owner: root
+    group: root
+    src: vlan_n1.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "n1.brs"
+
+- name: Create Vlan for {{ node2 }}
+  template:
+    owner: root
+    group: root
+    src: vlan_n2.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "n2.brs"
+
+- name: Create Vlan for {{ node3 }}
+  template:
+    owner: root
+    group: root
+    src: vlan_n3.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "n3.brs"
+
+- name: Create Vlan for {{ iscsi }}
+  template:
+    owner: root
+    group: root
+    src: vlan_iscsi.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-vlan1
+  when: inventory_hostname == "iscsi.brs"
+
+- name: Restart Network
+  systemd: 
+    name: network
+    state: restarted

@@ -1,0 +1,74 @@
+---
+
+- name: Base config VM
+  hosts: all
+  become: True
+  gather_facts: False
+  roles: 
+    - config-node
+
+- name: Config Firewalld
+  hosts: n1.brs:n2.brs:n3.brs
+  become: True
+  gather_facts: False
+  roles:
+    - firewalld
+
+- name: Config vlan
+  hosts: all
+  become: True
+  gather_facts: False
+  roles:
+    - vlan
+
+- name: Config iSCSI-target
+  hosts: iscsi.brs
+  become: True
+  gather_facts: False
+  roles:
+    - iscsi-target
+
+- name: Config iSCSI-initiator
+  hosts: n1.brs:n2.brs:n3.brs
+  become: True
+  gather_facts: False
+  roles:
+    - iscsi-initiator
+  tags:
+    - init
+
+- name: Config Galera Cluster
+  hosts: n1.brs:n2.brs:n3.brs
+  become: True
+  gather_facts: False
+  roles:
+    - galera
+  tags: 
+    - galera
+
+- name: Install and config nginx-php
+  hosts: n1.brs:n2.brs:n3.brs
+  become: True
+  gather_facts: False
+  roles:
+    - nginx_php
+  tags:
+    - nginx_php
+
+- name: Install&config pacemaker 
+  hosts: n1.brs:n2.brs:n3.brs
+  become: True
+  gather_facts: False
+  roles:
+    - pacemaker
+  tags: 
+    - pacemaker
+
+- name: Install Wordpress
+  hosts: n1.brs:n2.brs:n3.brs
+  become: True
+  gather_facts: False
+  roles:
+    - wordpress
+  tags:
+    - wordpress

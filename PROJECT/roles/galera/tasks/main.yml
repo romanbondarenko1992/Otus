@@ -1,0 +1,77 @@
+---
+# tasks file for galera
+
+- name: Copy mariadb.repo
+  copy:
+    src: mariadb.repo 
+    dest: /etc/yum.repos.d/mariadb.repo
+
+- name: Enable repo mariadb
+  command: "yum makecache --enablerepo='mariadb'"
+
+- name: Install mariadb 
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - MariaDB-server
+    - MariaDB-client
+
+- name: Start mariadb.service
+  systemd:
+    name: mariadb
+    state: started
+
+- name: Create root password
+  command: "{{ item }}" 
+  with_items:
+    - "mysql -u root -e 'set password = password(\"{{ mdb_password }}\");'"
+
+- name: Stop mariadb.service
+  systemd:
+    name: mariadb
+    state: stopped
+
+- name: Create config {{ node1 }} Galera
+  template:
+    backup: yes
+    owner: root
+    group: root
+    src: n1.galera.cnf.j2 
+    dest: /etc/my.cnf.d/galera.cnf
+  when: inventory_hostname == "n1.brs"
+
+- name: Create config {{ node2 }} Galera
+  template:
+    backup: yes
+    owner: root
+    group: root
+    src: n2.galera.cnf.j2
+    dest: /etc/my.cnf.d/galera.cnf
+  when: inventory_hostname == "n2.brs"
+
+- name: Create config {{ node3 }} Galera
+  template:
+    backup: yes
+    owner: root
+    group: root
+    src: n3.galera.cnf.j2
+    dest: /etc/my.cnf.d/galera.cnf
+  when: inventory_hostname == "n3.brs"
+
+- name: Start galera cluster
+  command: "galera_new_cluster" 
+  when: inventory_hostname == "n1.brs"
+
+- name: Start {{ node2 }} mariadb
+  systemd:
+    name: mariadb
+    state: started
+  when: inventory_hostname == "n2.brs"
+
+- name: Start {{ node3 }} mariadb
+  systemd:
+    name: mariadb
+    state: started
+  when: inventory_hostname == "n3.brs"

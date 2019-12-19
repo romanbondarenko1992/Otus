@@ -1,0 +1,60 @@
+---
+# tasks file for firewalld
+- name: Open port high-availability 
+  firewalld:
+    service: high-availability
+    permanent: yes
+    state: enabled
+
+- name: Open port http
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+
+- name: Open port iscsi
+  firewalld:
+    port: 3260/tcp
+    permanent: yes
+    state: enabled
+
+- name: Open port Galera 3306/tcp
+  firewalld:
+    port: 3306/tcp
+    permanent: yes
+    state: enabled
+
+- name: Open port Galera 4567/tcp
+  firewalld:
+    port: 4567/tcp
+    permanent: yes
+    state: enabled
+
+- name: Open port Galera 4568/tcp
+  firewalld:
+    port: 4568/tcp
+    permanent: yes
+    state: enabled
+
+- name: Open port Galera 4568/tcp
+  firewalld:
+    port: 4568/tcp
+    permanent: yes
+    state: enabled
+
+- name: Open port Galera 4444/tcp
+  firewalld:
+    port: 4444/tcp
+    permanent: yes
+    state: enabled
+
+- name: Open port Galera 4567/udp
+  firewalld:
+    port: 4567/udp
+    permanent: yes
+    state: enabled
+
+- name: Restart Firewalld
+  systemd:
+    name: firewalld
+    state: restarted

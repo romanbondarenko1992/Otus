@@ -1,0 +1,24 @@
+## template:jinja
+{#
+This file /etc/cloud/templates/hosts.redhat.tmpl is only utilized
+if enabled in cloud-config.  Specifically, in order to enable it
+you need to add the following to config:
+  manage_etc_hosts: True
+-#}
+# Your system has configured 'manage_etc_hosts' as True.
+# As a result, if you wish for changes to this file to persist
+# then you will need to either
+# a.) make changes to the master file in /etc/cloud/templates/hosts.redhat.tmpl
+# b.) change or remove the value of 'manage_etc_hosts' in
+#     /etc/cloud/cloud.cfg or cloud-config from user-data
+#
+# The following lines are desirable for IPv4 capable hosts
+
+{{ ip_n1 }}  {{ node1 }}
+{{ ip_n2 }}  {{ node2 }}
+{{ ip_n3 }}  {{ node3 }}
+{{ ip_iscsi }}  {{ iscsi }}
+{{ vlan_n1 }} {{ vname_n1 }}
+{{ vlan_n2 }} {{ vname_n2 }}
+{{ vlan_n3 }} {{ vname_n3 }}
+{{ vlan_iscsi }} {{ vname_iscsi }}

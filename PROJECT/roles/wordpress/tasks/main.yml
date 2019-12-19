@@ -1,0 +1,27 @@
+---
+# tasks file for wordpress
+
+- name: Download Wordpress
+  get_url:
+    url: http://wordpress.org/latest.tar.gz
+    dest: "{{ web_dir }}"
+
+- name: Extract Wordpress into {{ web_dir }}
+  command: "tar -xzf {{ web_dir }}/wordpress-5.3.2.tar.gz -C /var/www/html" 
+    
+
+- name: Config wordpress
+  template:
+    owner: root
+    group: root
+    src: wp-config.php.j2
+    dest: "{{ web_dir }}/wordpress/wp-config.php"
+
+- name: Create Wordpress DB
+  command: "{{ item }}"
+  with_items:
+    - "mysql -uroot -p{{ mdb_password }} -e 'CREATE DATABASE {{ wdb_name }};'"
+    - "mysql -uroot -p{{ mdb_password }} -e 'CREATE USER {{ wdb_user }}@localhost IDENTIFIED BY \"{{ wdb_pass }}\";'"
+    - "mysql -uroot -p{{ mdb_password }} -e 'GRANT ALL PRIVILEGES ON {{ wdb_name }}.* TO {{ wdb_user }}@localhost IDENTIFIED BY \"{{ wdb_pass }}\";'"
+    - "mysql -uroot -p{{ mdb_password }} -e 'FLUSH PRIVILEGES;'"
+  when: inventory_hostname == "n1.brs"
