@@ -1,6 +1,6 @@
 # Веб-кластер Active/Active Pacemaker Corosync с балансировкой на IPaddr2, Galera Cluster и iSCSI GFS2. 
 
-![Схема проекта](//https://github.com/romanbondarenko1992/Otus/blob/master/PROJECT/scheme.jpg)
+![Схема проекта](https://github.com/romanbondarenko1992/Otus/blob/master/PROJECT/scheme.jpg)
 
 Cконфигурировал 4 виртуальные машины на 2 интерфейса:
 1) для создания VirtualIP и подключению
