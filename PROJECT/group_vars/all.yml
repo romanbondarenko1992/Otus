@@ -1,28 +1,28 @@
-node1: "n1.brs"
+node1: "n1.brs" #names host
 node2: "n2.brs"
 node3: "n3.brs"
 iscsi: "iscsi.brs"
-ip_n1: "10.51.21.74"
+ip_n1: "10.51.21.74" #lan ip address
 ip_n2:  "10.51.21.72"
 ip_n3: "10.51.21.73"
 ip_iscsi: "10.51.21.71"
-vlan_n1: "10.10.10.1"
+vlan_n1: "10.10.10.1" # vlan ip address
 vlan_n2: "10.10.10.2"
 vlan_n3: "10.10.10.3"
 vlan_iscsi: "10.10.10.4"
-vname_n1: n1.brs-ls
+vname_n1: n1.brs-ls  # name hosts for vlan
 vname_n2: n1.brs-ls
 vname_n3: n1.brs-ls
 vname_iscsi: n1.brs-ls
-pcm_password: "hacluster"
-cl_name: "webclotus"
-name_vip: "ClusterIP"
-vip: "10.51.21.75"
-name_web: "ClusterNginx"
-name_gfs2: "gfs2_res1"
-name_dlm: "dlm"
-mdb_password: "Otusmariadb"
-kvm_ip: "10.51.21.254"
+pcm_password: "hacluster" # pass for pcs-user
+cl_name: "webclotus" # name cluster
+name_vip: "ClusterIP" # name pcs resource IPaddr2
+vip: "10.51.21.75" # virtual ip
+name_web: "ClusterNginx" # name resource Nginx
+name_gfs2: "gfs2_res1" # name resource gfs
+name_dlm: "dlm" # name resource dlm
+mdb_password: "Otusmariadb" # root pass for DB
+kvm_ip: "10.51.21.254" 
 kvm_node_name: "m11266"
 KVM_login: "fence@pve"
 KVM_password: "Fence2019prox"

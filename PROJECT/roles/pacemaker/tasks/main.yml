@@ -111,13 +111,13 @@
 - name: Create cluster resource
   command: "{{ item }}"
   with_items:
-    - "pcs resource create {{ name_vip }}  ocf:heartbeat:IPaddr2 ip=\"{{ vip }}\" mac=\"01:00:5E:02:02:04\" cidr_netmask=\"24\" nic=\"eth0\" clusterip_hash=\"sourceip-sourceport\" op monitor interval=10s clone clone-max=3 clone-node-max=1"
-    - "pcs resource create {{ name_web }} ocf:heartbeat:nginx configfile=/etc/nginx/nginx.conf op monitor timeout=5s interval=5s clone clone-max=3 clone-node-max=1" 
+    - "pcs resource create {{ name_vip }}  ocf:heartbeat:IPaddr2 ip=\"{{ vip }}\" mac=\"01:00:5E:02:02:04\" cidr_netmask=\"24\" nic=\"eth0\" clusterip_hash=\"sourceip-sourceport\" op monitor interval=10s clone clone-max=3 clone-node-max=1 on-fail=fence"
+    - "pcs resource create {{ name_web }} ocf:heartbeat:nginx configfile=/etc/nginx/nginx.conf op monitor timeout=5s interval=5s clone clone-max=3 clone-node-max=1 on-fail=fence" 
     - "pcs constraint colocation add {{ name_web }}-clone {{ name_vip }}-clone INFINITY" 
     - "pcs constraint order {{ name_vip }}-clone then {{ name_web }}-clone"
     - "pcs resource create {{ name_dlm }} ocf:pacemaker:controld op monitor interval=60s clone clone-max=3 clone-node-max=1"
     - "mount {{ block_device }}1 {{ web_dir }}"
-    - "pcs resource create {{ name_gfs2 }} ocf:heartbeat:Filesystem device=\"/dev/sdb1\"  directory=\"{{ web_dir }}\" fstype=\"gfs2\" options=\"noatime,nodiratime,rw\" op monitor interval=90s on-fail=fence clone clone-max=3 clone-node-max=1"
+    - "pcs resource create {{ name_gfs2 }} ocf:heartbeat:Filesystem device=\"/dev/sdb1\"  directory=\"{{ web_dir }}\" fstype=\"gfs2\" options=\"noatime,nodiratime,rw\" op monitor interval=90s on-fail=fence clone clone-max=3 clone-node-max=1 on-fail=fence"
     - "pcs constraint colocation add {{ name_gfs2 }}-clone with {{ name_dlm }}-clone INFINITY"
     - "pcs constraint order {{ name_dlm }}-clone then {{ name_gfs2 }}-clone"
   when: inventory_hostname == "n1.brs"
